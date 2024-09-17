@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SignUpFragment">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_bot_border"
+        app:layout_constraintBottom_toTopOf="@id/editTextUsername"
+        android:padding="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/afacad_bold"
+            android:text=" LET'S \n CREATE AN \n ACCOUNT"
+            android:textColor="@color/white"
+            android:textSize="48dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" >
+
+        </TextView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <EditText
+        android:id="@+id/editTextUsername"
+        android:layout_width="256dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:background="@drawable/border"
+        android:backgroundTint="@color/PrimaryColor"
+        android:drawableStart="@drawable/icons8_user_48"
+        android:drawablePadding="8dp"
+        android:drawableTint="@color/PrimaryColor"
+        android:ems="10"
+        android:hint="Username"
+        android:inputType="text"
+        android:textColor="#000000"
+        android:textColorHighlight="#FFFFFF"
+        android:textColorHint="@color/PrimaryColor"
+        android:textColorLink="@color/PrimaryColor"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+
+    <EditText
+        android:id="@+id/editTextEmail"
+        android:layout_width="256dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/border"
+        android:backgroundTint="@color/PrimaryColor"
+        android:drawableStart="@drawable/mailicon"
+        android:drawablePadding="8dp"
+        android:drawableTint="@color/PrimaryColor"
+        android:ems="10"
+        android:hint="Email Adress"
+        android:inputType="textEmailAddress"
+        android:textColor="#000000"
+        android:textColorHighlight="#FFFFFF"
+        android:textColorHint="@color/PrimaryColor"
+        android:textColorLink="@color/PrimaryColor"
+        app:layout_constraintEnd_toEndOf="@+id/editTextUsername"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/editTextUsername"
+        app:layout_constraintTop_toBottomOf="@+id/editTextUsername" />
+
+    <EditText
+        android:id="@+id/editTextPassword"
+        android:layout_width="256dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/border"
+        android:backgroundTint="@color/PrimaryColor"
+        android:drawableStart="@drawable/icons8_lock"
+        android:drawablePadding="8dp"
+        android:drawableTint="@color/PrimaryColor"
+        android:ems="10"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:textColor="#000000"
+        android:textColorHighlight="#FFFFFF"
+        android:textColorHint="@color/PrimaryColor"
+        android:textColorLink="@color/PrimaryColor"
+        app:layout_constraintEnd_toEndOf="@+id/editTextEmail"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/editTextEmail"
+        app:layout_constraintTop_toBottomOf="@+id/editTextEmail" />
+
+    <EditText
+        android:id="@+id/editTextPasswordAgain"
+        android:layout_width="256dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/border"
+        android:backgroundTint="@color/PrimaryColor"
+        android:drawableStart="@drawable/icons8_lock"
+        android:drawablePadding="8dp"
+        android:drawableTint="@color/PrimaryColor"
+        android:ems="10"
+        android:hint="Password Again"
+        android:inputType="textPassword"
+        android:textColor="#000000"
+        android:textColorHighlight="#FFFFFF"
+        android:textColorHint="@color/PrimaryColor"
+        android:textColorLink="@color/PrimaryColor"
+        app:layout_constraintEnd_toEndOf="@+id/editTextPassword"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/editTextPassword"
+        app:layout_constraintTop_toBottomOf="@+id/editTextPassword"/>
+
+    <CheckBox
+        android:id="@+id/checkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/terms_privacy"
+        app:layout_constraintStart_toStartOf="@+id/editTextPasswordAgain"
+        app:layout_constraintTop_toBottomOf="@+id/editTextPasswordAgain" />
+
+    <Button
+        android:id="@+id/signUpBtn"
+        android:layout_width="256dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="@color/PrimaryColor"
+        android:onClick="signup"
+        android:text="Create An Account"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/checkBox" />
+
+    <TextView
+        android:id="@+id/textViewBackToLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/backToLogin"
+        app:layout_constraintStart_toStartOf="@+id/signUpBtn"
+        app:layout_constraintTop_toBottomOf="@+id/signUpBtn" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

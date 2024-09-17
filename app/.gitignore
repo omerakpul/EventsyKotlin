@@ -1,0 +1,4 @@
+/build
+
+# Firebase configuration file
+app/google-services.json
