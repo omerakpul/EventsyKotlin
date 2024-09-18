@@ -14,6 +14,8 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.omer.eventsy.databinding.FragmentSignUpBinding
 
@@ -23,10 +25,12 @@ class SignUpFragment : Fragment() {
     private var _binding: FragmentSignUpBinding? = null
     private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
+        firestore = Firebase.firestore
     }
 
     override fun onCreateView(
@@ -74,8 +78,7 @@ class SignUpFragment : Fragment() {
         })
     }
 
-    fun signup(view: View){
-
+    fun signup(view: View) {
         val email = binding.editTextEmail.text.toString()
         val password = binding.editTextPassword.text.toString()
         val rePassword = binding.editTextPasswordAgain.text.toString()
@@ -83,21 +86,47 @@ class SignUpFragment : Fragment() {
 
         if(email.isNotEmpty() && password.isNotEmpty() && rePassword.isNotEmpty() && username.isNotEmpty()) {
             if(password == rePassword) {
-                auth.createUserWithEmailAndPassword(email,password).addOnCompleteListener { task ->
+                auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
                     if(task.isSuccessful) {
-                        val action = SignUpFragmentDirections.actionSignUpFragmentToFeedFragment()
-                        Navigation.findNavController(view).navigate(action)
+                        // Kullanıcı kaydı başarılı oldu
+                        val currentUser = auth.currentUser
+                        currentUser?.let {
+                            val userId = it.uid
+
+                            // Firestore'a email ve username ekleniyor
+                            val userMap = hashMapOf(
+                                "email" to email,
+                                "username" to username
+                            )
+
+                            FirebaseFirestore.getInstance().collection("Users")
+                                .document(userId)
+                                .set(userMap)
+                                .addOnSuccessListener {
+                                    // Kullanıcı bilgileri Firestore'a başarıyla eklendi
+                                    val action = SignUpFragmentDirections.actionSignUpFragmentToFeedFragment()
+                                    Navigation.findNavController(view).navigate(action)
+                                }
+                                .addOnFailureListener { exception ->
+                                    // Firestore'a eklenirken hata oluştu
+                                    Toast.makeText(requireContext(), "Veritabanı hatası: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+                                }
+                        }
+                    } else {
+                        // Kullanıcı kaydı başarısız oldu
+                        Toast.makeText(requireContext(), task.exception?.localizedMessage, Toast.LENGTH_LONG).show()
                     }
                 }.addOnFailureListener { exception ->
-                    Toast.makeText(requireContext(),exception.localizedMessage, Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), exception.localizedMessage, Toast.LENGTH_LONG).show()
                 }
             } else {
                 Toast.makeText(requireContext(), "Passwords do not match!", Toast.LENGTH_LONG).show()
-                }
-            } else {
-                Toast.makeText(requireContext(),"Please fill in all fields", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_LONG).show()
         }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
