@@ -13,10 +13,13 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.ktx.storage
 import com.omer.eventsy.adapter.PostAdapter
-import com.omer.eventsy.databinding.FragmentFeedBinding
 import com.omer.eventsy.databinding.FragmentProfileBinding
 import com.omer.eventsy.model.Post
+import com.squareup.picasso.Picasso
 
 class ProfileFragment : Fragment() {
 
@@ -26,11 +29,15 @@ class ProfileFragment : Fragment() {
     private lateinit var db : FirebaseFirestore
     val postList : ArrayList<Post> = arrayListOf()
     private var adapter : PostAdapter? = null
+    private lateinit var storage : FirebaseStorage
+    private lateinit var reference : StorageReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
         db = Firebase.firestore
+        storage = Firebase.storage
+        reference = storage.reference
     }
 
     override fun onCreateView(
@@ -40,15 +47,48 @@ class ProfileFragment : Fragment() {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val view = binding.root
         return view
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         FirestoreDatas()
+        loadProfileData()
 
         adapter = PostAdapter(postList)
         binding.userPosts.layoutManager = LinearLayoutManager(requireContext())
         binding.userPosts.adapter = adapter
+    }
+
+    private fun loadProfileData() {
+        val userId = auth.currentUser?.uid ?: return
+
+        db.collection("Users").document(userId).get().addOnSuccessListener { document ->
+            if (document != null) {
+                val profileImageUrl = document.getString("downloadUrl")
+                val username = document.getString("username")
+
+                // Profil resmi güncelle
+                if (profileImageUrl != null) {
+                    Picasso.get()
+                        .load(profileImageUrl)
+                        .placeholder(R.drawable.icons8_user_48) // Varsayılan resim
+                        .error(R.drawable.baseline_error_outline_24) // Hata durumunda varsayılan resim
+                        .into(binding.profilePicture)
+                } else {
+                    binding.profilePicture.setImageResource(R.drawable.icons8_user_48)
+                }
+
+                // Kullanıcı adı güncelle
+                if (username != null) {
+                    binding.username.text = username
+                }
+            } else {
+                Toast.makeText(requireContext(), "User document not found", Toast.LENGTH_SHORT).show()
+            }
+        }.addOnFailureListener { exception ->
+            Toast.makeText(requireContext(), "Failed to load user data: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun FirestoreDatas() {
@@ -68,6 +108,7 @@ class ProfileFragment : Fragment() {
                             val email = document.get("email") as String
                             val title = document.get("title") as String
                             val downloadUrl = document.get("downloadUrl") as String
+
 
                             val post = Post(email, details, title, downloadUrl)
                             postList.add(post)

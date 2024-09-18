@@ -21,7 +21,6 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
@@ -29,9 +28,8 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
-import com.omer.eventsy.databinding.FragmentFeedBinding
 import com.omer.eventsy.databinding.FragmentSettingsBinding
-import com.omer.eventsy.databinding.FragmentSignUpBinding
+import com.squareup.picasso.Picasso
 import java.lang.Exception
 import java.util.UUID
 
@@ -57,6 +55,8 @@ class SettingsFragment : Fragment() {
         db = Firebase.firestore
         storage = Firebase.storage
         reference = storage.reference
+
+        registerLaunchers()
     }
 
     override fun onCreateView(
@@ -71,18 +71,25 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        updateUI()
+
         binding.logout.setOnClickListener {
             auth.signOut()
             val action = SettingsFragmentDirections.actionSettingsFragmentToLoginFragment()
             Navigation.findNavController(requireView()).navigate(action)
         }
 
-        binding.profilePictureBtn.setOnClickListener {
+        binding.profilePicture.setOnClickListener {
+            selectPhotos(it)
+        }
 
+        binding.saveButton.setOnClickListener {
+            uploadProfilePicture(it)
         }
 
 
     }
+
     fun selectPhotos(view: View){
         //PERMISSION CONTROL FOR ANDROID 13 (TIRAMISU) AND HIGHER
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -122,39 +129,126 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    fun uploadProfilePicture(view: View){
+    fun uploadProfilePicture(view : View){
 
         val username = binding.usernameTxt.text.toString()
+        val userId = auth.currentUser?.uid ?: return
 
-        val uuid = UUID.randomUUID()
-        val imageName = "${uuid}.jpg"
+        // Varsayılan olarak güncellenmiş bilgiler
+        val updatedData = hashMapOf<String, Any>()
 
-        val imageReference = reference.child("profile_images").child(imageName)
-        if(selectedImage!=null) {
+        // Profil resmi varsa güncelle
+        if (selectedImage != null) {
+            val uuid = UUID.randomUUID()
+            val imageName = "${uuid}.jpg"
+            val imageReference = reference.child("profile_images").child(imageName)
 
-            //UPLOADING TO FIREBASE STORAGE
-            imageReference.putFile(selectedImage!!).addOnSuccessListener { uploadTask ->
+            // Eski profil resmini sil
+            db.collection("Users").document(userId).get().addOnSuccessListener { document ->
+                val oldImageUrl = document.getString("downloadUrl")
+                if (oldImageUrl != null) {
+                    val oldImageRef = storage.getReferenceFromUrl(oldImageUrl)
+                    oldImageRef.delete().addOnSuccessListener {
+                        // Eski resim silindi, yeni resim yükleniyor
+                        imageReference.putFile(selectedImage!!).addOnSuccessListener {
+                            imageReference.downloadUrl.addOnSuccessListener { uri ->
+                                val downloadUrl = uri.toString()
+                                updatedData["downloadUrl"] = downloadUrl
 
-                //IF UPLOADED WELL, GETS DOWNLOAD URL
-                imageReference.downloadUrl.addOnSuccessListener { uri ->
-                    val downloadUrl = uri.toString()
+                                // Kullanıcı adını güncelle
+                                if (username.isNotEmpty()) {
+                                    updatedData["username"] = username
+                                }
 
-                    //CREATES A HASHMAP TO LOAD TO FIRESTORE
-                    val userMap = hashMapOf<String, Any>()
-                    userMap.put("downloadUrl", downloadUrl)
-                    userMap.put("username", username)
-
-                    //ADD POST TO FIRESTORE
-                    db.collection("Posts").add(userMap).addOnSuccessListener { documentReference ->
-                        // data uploaded
-                        val action = PostFragmentDirections.actionPostFragmentToFeedFragment()
-                        Navigation.findNavController(view).navigate(action)
+                                // Güncellenmiş verileri Firestore'a kaydet
+                                db.collection("Users").document(userId).update(updatedData)
+                                    .addOnSuccessListener {
+                                        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                                    }
+                                    .addOnFailureListener { exception ->
+                                        Toast.makeText(requireContext(), "Failed to update profile: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+                                    }
+                            }.addOnFailureListener { exception ->
+                                Toast.makeText(requireContext(), "Failed to upload image: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+                            }
+                        }
                     }.addOnFailureListener { exception ->
-                        Toast.makeText(requireContext(),exception.localizedMessage,Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "Failed to delete old image: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+                    }
+                } else {
+                    // Eski resim yoksa sadece yeni resmi yükle
+                    imageReference.putFile(selectedImage!!).addOnSuccessListener {
+                        imageReference.downloadUrl.addOnSuccessListener { uri ->
+                            val downloadUrl = uri.toString()
+                            updatedData["downloadUrl"] = downloadUrl
+
+                            // Kullanıcı adını güncelle
+                            if (username.isNotEmpty()) {
+                                updatedData["username"] = username
+                            }
+
+                            // Güncellenmiş verileri Firestore'a kaydet
+                            db.collection("Users").document(userId).update(updatedData)
+                                .addOnSuccessListener {
+                                    Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { exception ->
+                                    Toast.makeText(requireContext(), "Failed to update profile: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+                                }
+                        }.addOnFailureListener { exception ->
+                            Toast.makeText(requireContext(), "Failed to upload image: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+                        }
                     }
                 }
-            }.addOnFailureListener{ exception ->
-                Toast.makeText(requireContext(),exception.localizedMessage,Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            // Profil resmi değişmediyse, sadece kullanıcı adını güncelle
+            if (username.isNotEmpty()) {
+                updatedData["username"] = username
+            }
+
+            // Güncellenmiş verileri Firestore'a kaydet
+            if (updatedData.isNotEmpty()) {
+                db.collection("Users").document(userId).update(updatedData)
+                    .addOnSuccessListener {
+                        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { exception ->
+                        Toast.makeText(requireContext(), "Failed to update profile: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+                    }
+            } else {
+                Toast.makeText(requireContext(), "No changes to save", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    }
+
+    private fun updateUI() {
+        val userId = auth.currentUser?.uid ?: return
+
+        db.collection("Users").document(userId).get().addOnSuccessListener { document ->
+            if (document != null) {
+                val profileImageUrl = document.getString("downloadUrl")
+                val username = document.getString("username")
+
+                // Profil resmi güncelle
+                if (profileImageUrl != null) {
+                    Picasso.get()
+                        .load(profileImageUrl)
+                        .placeholder(R.drawable.icons8_user_48) // Varsayılan resim
+                        .error(R.drawable.baseline_error_outline_24) // Hata durumunda varsayılan resim
+                        .into(binding.profilePicture)
+                } else {
+                    binding.profilePicture.setImageResource(R.drawable.icons8_user_48)
+                }
+
+                // Kullanıcı adı güncelle
+                if (username != null) {
+                    binding.usernameTxt.setText(username)
+                }
+            } else {
+                Toast.makeText(requireContext(), "User document not found", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
