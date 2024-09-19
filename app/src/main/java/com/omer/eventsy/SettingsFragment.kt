@@ -31,11 +31,6 @@ import com.google.firebase.storage.ktx.storage
 import com.omer.eventsy.databinding.FragmentSettingsBinding
 import com.squareup.picasso.Picasso
 import java.lang.Exception
-import java.util.UUID
-
-
-
-
 
 class SettingsFragment : Fragment() {
 
@@ -129,7 +124,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    fun uploadProfilePicture(view : View){
+    fun uploadProfilePicture(view: View) {
 
         val username = binding.usernameTxt.text.toString()
         val userId = auth.currentUser?.uid ?: return
@@ -139,68 +134,34 @@ class SettingsFragment : Fragment() {
 
         // Profil resmi varsa güncelle
         if (selectedImage != null) {
-            val uuid = UUID.randomUUID()
-            val imageName = "${uuid}.jpg"
-            val imageReference = reference.child("profile_images").child(imageName)
+            val imageReference = reference.child("profile_images").child("$userId.jpg")
 
-            // Eski profil resmini sil
-            db.collection("Users").document(userId).get().addOnSuccessListener { document ->
-                val oldImageUrl = document.getString("downloadUrl")
-                if (oldImageUrl != null) {
-                    val oldImageRef = storage.getReferenceFromUrl(oldImageUrl)
-                    oldImageRef.delete().addOnSuccessListener {
-                        // Eski resim silindi, yeni resim yükleniyor
-                        imageReference.putFile(selectedImage!!).addOnSuccessListener {
-                            imageReference.downloadUrl.addOnSuccessListener { uri ->
-                                val downloadUrl = uri.toString()
-                                updatedData["downloadUrl"] = downloadUrl
+            // Eski profil resmini silmeye gerek yok, direkt yeni resmi aynı isimle yükle
+            imageReference.putFile(selectedImage!!).addOnSuccessListener {
+                imageReference.downloadUrl.addOnSuccessListener { uri ->
+                    val downloadUrl = uri.toString()
+                    updatedData["downloadUrl"] = downloadUrl
 
-                                // Kullanıcı adını güncelle
-                                if (username.isNotEmpty()) {
-                                    updatedData["username"] = username
-                                }
-
-                                // Güncellenmiş verileri Firestore'a kaydet
-                                db.collection("Users").document(userId).update(updatedData)
-                                    .addOnSuccessListener {
-                                        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                                    }
-                                    .addOnFailureListener { exception ->
-                                        Toast.makeText(requireContext(), "Failed to update profile: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
-                                    }
-                            }.addOnFailureListener { exception ->
-                                Toast.makeText(requireContext(), "Failed to upload image: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
-                            }
-                        }
-                    }.addOnFailureListener { exception ->
-                        Toast.makeText(requireContext(), "Failed to delete old image: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+                    // Kullanıcı adını güncelle
+                    if (username.isNotEmpty()) {
+                        updatedData["username"] = username
                     }
-                } else {
-                    // Eski resim yoksa sadece yeni resmi yükle
-                    imageReference.putFile(selectedImage!!).addOnSuccessListener {
-                        imageReference.downloadUrl.addOnSuccessListener { uri ->
-                            val downloadUrl = uri.toString()
-                            updatedData["downloadUrl"] = downloadUrl
 
-                            // Kullanıcı adını güncelle
-                            if (username.isNotEmpty()) {
-                                updatedData["username"] = username
-                            }
-
-                            // Güncellenmiş verileri Firestore'a kaydet
-                            db.collection("Users").document(userId).update(updatedData)
-                                .addOnSuccessListener {
-                                    Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                                }
-                                .addOnFailureListener { exception ->
-                                    Toast.makeText(requireContext(), "Failed to update profile: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
-                                }
-                        }.addOnFailureListener { exception ->
-                            Toast.makeText(requireContext(), "Failed to upload image: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+                    // Güncellenmiş verileri Firestore'a kaydet
+                    db.collection("Users").document(userId).update(updatedData)
+                        .addOnSuccessListener {
+                            Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
                         }
-                    }
+                        .addOnFailureListener { exception ->
+                            Toast.makeText(requireContext(), "Failed to update profile: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+                        }
+                }.addOnFailureListener { exception ->
+                    Toast.makeText(requireContext(), "Failed to upload image: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
                 }
+            }.addOnFailureListener { exception ->
+                Toast.makeText(requireContext(), "Failed to upload new image: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
             }
+
         } else {
             // Profil resmi değişmediyse, sadece kullanıcı adını güncelle
             if (username.isNotEmpty()) {
@@ -220,8 +181,8 @@ class SettingsFragment : Fragment() {
                 Toast.makeText(requireContext(), "No changes to save", Toast.LENGTH_SHORT).show()
             }
         }
-
     }
+
 
     private fun updateUI() {
         val userId = auth.currentUser?.uid ?: return
