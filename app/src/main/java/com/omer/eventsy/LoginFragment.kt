@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.navigation.Navigation
@@ -62,12 +63,18 @@ class LoginFragment : Fragment() {
 
         if(email.isNotEmpty() && password.isNotEmpty()) {
             auth.signInWithEmailAndPassword(email,password).addOnSuccessListener {
+                hideKeyboard()
                 val action = LoginFragmentDirections.actionLoginFragmentToFeedFragment()
                 Navigation.findNavController(view).navigate(action)
             }.addOnFailureListener { exception ->
                 Toast.makeText(requireContext(),exception.localizedMessage, Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    fun hideKeyboard() {
+        val imm = requireActivity().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view?.windowToken, 0)
     }
 
     fun signup(view: View){
