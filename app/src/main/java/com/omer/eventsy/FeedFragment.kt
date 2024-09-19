@@ -1,11 +1,11 @@
 package com.omer.eventsy
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -47,16 +47,15 @@ class FeedFragment : Fragment() {
 
         bottomNavigationView.setOnItemSelectedListener { item ->
             when(item.itemId){
-                R.id.home -> findNavController().navigate(R.id.feedFragment)
-                R.id.profile -> findNavController().navigate(R.id.profileFragment)
-                R.id.settings -> findNavController().navigate(R.id.settingsFragment)
-                R.id.post -> findNavController().navigate(R.id.postFragment)
+                R.id.home -> if(findNavController().currentDestination?.id != R.id.feedFragment) findNavController().navigate(R.id.feedFragment)
+                R.id.profile -> if(findNavController().currentDestination?.id != R.id.profileFragment) findNavController().navigate(R.id.profileFragment)
+                R.id.settings -> if(findNavController().currentDestination?.id != R.id.settingsFragment) findNavController().navigate(R.id.settingsFragment)
+                R.id.post -> if(findNavController().currentDestination?.id != R.id.postFragment) findNavController().navigate(R.id.postFragment)
             }
             true
         }
     return view
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -71,7 +70,8 @@ class FeedFragment : Fragment() {
 
         db.collection("Posts").orderBy("date", Query.Direction.DESCENDING).addSnapshotListener { value, error ->
             if(error!=null) {
-                Toast.makeText(requireContext(),error.localizedMessage,Toast.LENGTH_LONG).show()
+                Log.e("FeedFragment", "Firestore query failed: ${error.localizedMessage}")
+            // Toast.makeText(requireContext(),"ads",Toast.LENGTH_LONG).show()
             } else {
                 if (value != null) {
                     if (!value.isEmpty) {

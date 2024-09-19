@@ -65,7 +65,6 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         updateUI()
 
         binding.logout.setOnClickListener {
@@ -81,8 +80,6 @@ class SettingsFragment : Fragment() {
         binding.saveButton.setOnClickListener {
             uploadProfilePicture(it)
         }
-
-
     }
 
     fun selectPhotos(view: View){
@@ -182,7 +179,6 @@ class SettingsFragment : Fragment() {
             }
         }
     }
-
 
     private fun updateUI() {
         val userId = auth.currentUser?.uid ?: return

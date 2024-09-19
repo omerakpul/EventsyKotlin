@@ -6,15 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.navigation.Navigation
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.omer.eventsy.databinding.FragmentLoginBinding
-import com.omer.eventsy.databinding.FragmentSignUpBinding
-import kotlin.math.sign
 
 class LoginFragment : Fragment() {
 
@@ -39,6 +36,13 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed(){
+                requireActivity().finishAffinity()
+            }
+        })
+
+
         binding.signupBtn.setOnClickListener { signup(it) }
         binding.loginBtn.setOnClickListener { login(it) }
 
@@ -48,8 +52,9 @@ class LoginFragment : Fragment() {
             val action = LoginFragmentDirections.actionLoginFragmentToFeedFragment()
             Navigation.findNavController(view).navigate(action)
         }
-    }
 
+
+    }
     fun login(view: View){
 
         val email = binding.editTextUsername.text.toString()
