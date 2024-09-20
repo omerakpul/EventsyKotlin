@@ -19,7 +19,6 @@
         android:contentDescription="Profile Picture"
         app:shapeAppearanceOverlay="@style/CircleShapeAppearance"
         app:strokeColor="@color/PrimaryColor"
-        app:strokeWidth="3dp"
         android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"

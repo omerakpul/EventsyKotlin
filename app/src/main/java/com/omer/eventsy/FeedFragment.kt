@@ -61,7 +61,7 @@ class FeedFragment : Fragment() {
 
         FirestoreDatas()
 
-        adapter = PostAdapter(postList)
+        adapter = PostAdapter(postList,false,null)
         binding.feedRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.feedRecyclerView.adapter = adapter
     }
@@ -81,6 +81,7 @@ class FeedFragment : Fragment() {
                             val email = document.get("email") as String
                             val title = document.get("title") as String
                             val downloadUrl = document.get("downloadUrl") as String
+
 
                             db.collection("Users").whereEqualTo("email", email).get()
                                 .addOnSuccessListener { userDocs ->

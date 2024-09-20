@@ -39,6 +39,7 @@ class ProfileFragment : Fragment() {
         db = Firebase.firestore
         storage = Firebase.storage
         reference = storage.reference
+
     }
 
     override fun onCreateView(
@@ -56,10 +57,27 @@ class ProfileFragment : Fragment() {
         FirestoreDatas()
         loadProfileData()
 
-        adapter = PostAdapter(postList)
+
+        adapter = PostAdapter(postList,true,this)
         binding.userPosts.layoutManager = LinearLayoutManager(requireContext())
         binding.userPosts.adapter = adapter
+
     }
+
+    fun deletePost(postId: String) {
+        val userId = auth.currentUser?.uid ?: return
+
+        // Firestore'dan postu sil
+        db.collection("Posts").document(postId)
+            .delete()
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Post deleted successfully", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(requireContext(), "Failed to delete post: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+            }
+    }
+
 
     private fun loadProfileData() {
         val userId = auth.currentUser?.uid ?: return
@@ -69,7 +87,7 @@ class ProfileFragment : Fragment() {
                 val profileImageUrl = document.getString("downloadUrl")
                 val username = document.getString("username")
 
-                // Profil resmi güncelle
+                // Update profile picture
                 if (profileImageUrl != null) {
                     Picasso.get()
                         .load(profileImageUrl)
@@ -79,8 +97,7 @@ class ProfileFragment : Fragment() {
                 } else {
                     binding.profilePicture.setImageResource(R.drawable.icons8_user_48)
                 }
-
-                // Kullanıcı adı güncelle
+                // Update username
                 if (username != null) {
                     binding.username.text = username
                 }

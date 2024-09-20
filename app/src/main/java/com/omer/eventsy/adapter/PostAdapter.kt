@@ -1,13 +1,17 @@
 package com.omer.eventsy.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.omer.eventsy.ProfileFragment
 import com.omer.eventsy.databinding.RecyclerRowBinding
 import com.omer.eventsy.model.Post
 import com.squareup.picasso.Picasso
 
-class PostAdapter(private val postList : ArrayList<Post>) : RecyclerView.Adapter<PostAdapter.PostHolder>() {
+class PostAdapter(private val postList : ArrayList<Post>,
+                  private val isFragmentProfile: Boolean,
+                  private val fragment: ProfileFragment?) : RecyclerView.Adapter<PostAdapter.PostHolder>() {
 
     class PostHolder(val binding : RecyclerRowBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -26,5 +30,15 @@ class PostAdapter(private val postList : ArrayList<Post>) : RecyclerView.Adapter
         holder.binding.recyclerDate.text = post.title
         Picasso.get().load(post.downloadUrl).into(holder.binding.recyclerImageView)
         Picasso.get().load(post.profileImageUrl).into(holder.binding.recyclerProfilePicture)
+
+        if(isFragmentProfile){
+            holder.binding.recyclerDelete.visibility = View.VISIBLE
+
+            holder.binding.recyclerDelete.setOnClickListener {
+                //fragment.deletePost()
+            }
+        } else {
+            holder.binding.recyclerDelete.visibility = View.GONE
+        }
     }
 }
