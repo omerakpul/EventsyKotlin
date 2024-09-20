@@ -109,11 +109,15 @@ class ProfileFragment : Fragment() {
                             val title = document.get("title") as String
                             val downloadUrl = document.get("downloadUrl") as String
 
+                            db.collection("Users").whereEqualTo("email", email).get()
+                                .addOnSuccessListener { userDocs ->
+                                    val profileImageUrl = userDocs.documents[0].getString("downloadUrl")
 
-                            //val post = Post(email, details, title, downloadUrl)
-                            //postList.add(post)
+                                    val post = Post(email, details, title, downloadUrl, profileImageUrl)
+                                    postList.add(post)
+                                    adapter?.notifyDataSetChanged()
+                                }
                         }
-                        adapter?.notifyDataSetChanged()
                     }
                 }
             }
