@@ -112,8 +112,9 @@ class ProfileFragment : Fragment() {
                             db.collection("Users").whereEqualTo("email", email).get()
                                 .addOnSuccessListener { userDocs ->
                                     val profileImageUrl = userDocs.documents[0].getString("downloadUrl")
+                                    val username = userDocs.documents[0].getString("username")
 
-                                    val post = Post(email, details, title, downloadUrl, profileImageUrl)
+                                    val post = Post(email, details, title, downloadUrl, profileImageUrl,username)
                                     postList.add(post)
                                     adapter?.notifyDataSetChanged()
                                 }
@@ -123,7 +124,6 @@ class ProfileFragment : Fragment() {
             }
         }
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

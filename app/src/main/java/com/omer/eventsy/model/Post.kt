@@ -5,5 +5,6 @@ data class Post(
     val details : String,
     val title : String ,
     val downloadUrl : String,
-    val profileImageUrl : String?
+    val profileImageUrl : String?,
+    val username : String?
 )

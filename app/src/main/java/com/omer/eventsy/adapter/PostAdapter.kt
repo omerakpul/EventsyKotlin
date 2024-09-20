@@ -21,7 +21,7 @@ class PostAdapter(private val postList : ArrayList<Post>) : RecyclerView.Adapter
     }
     override fun onBindViewHolder(holder: PostHolder, position: Int) {
         val post = postList[position]
-        holder.binding.recyclerUsername.text = post.email
+        holder.binding.recyclerUsername.text = post.username
         holder.binding.recyclerDetails.text = post.details
         holder.binding.recyclerDate.text = post.title
         Picasso.get().load(post.downloadUrl).into(holder.binding.recyclerImageView)
