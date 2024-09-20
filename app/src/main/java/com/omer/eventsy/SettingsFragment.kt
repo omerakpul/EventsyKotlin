@@ -131,7 +131,7 @@ class SettingsFragment : Fragment() {
                 onResult(!documents.isEmpty)
             }
             .addOnFailureListener { exception ->
-                onResult(true) // Hata durumunda kullanıcı adı mevcut varsayıyoruz
+                onResult(true)
             }
     }
     fun hideKeyboard() {
@@ -145,30 +145,21 @@ class SettingsFragment : Fragment() {
 
         checkUsernameExists(username) { exists ->
             if (exists) {
-                // Kullanıcı adı zaten alındı
                 Toast.makeText(requireContext(), "Username already taken", Toast.LENGTH_SHORT).show()
                 return@checkUsernameExists
             }
-
-            // Varsayılan olarak güncellenmiş bilgiler
             val updatedData = hashMapOf<String, Any>()
 
-            // Profil resmi varsa güncelle
             if (selectedImage != null) {
                 val imageReference = reference.child("profile_images").child("$userId.jpg")
 
-                // Eski profil resmini silmeye gerek yok, direkt yeni resmi aynı isimle yükle
                 imageReference.putFile(selectedImage!!).addOnSuccessListener {
                     imageReference.downloadUrl.addOnSuccessListener { uri ->
                         val downloadUrl = uri.toString()
                         updatedData["downloadUrl"] = downloadUrl
-
-                        // Kullanıcı adını güncelle
                         if (username.isNotEmpty()) {
                             updatedData["username"] = username
                         }
-
-                        // Güncellenmiş verileri Firestore'a kaydet
                         db.collection("Users").document(userId).update(updatedData)
                             .addOnSuccessListener {
                                 Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
@@ -183,12 +174,9 @@ class SettingsFragment : Fragment() {
                     Toast.makeText(requireContext(), "Failed to upload new image: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
                 }
             } else {
-                // Profil resmi değişmediyse, sadece kullanıcı adını güncelle
                 if (username.isNotEmpty()) {
                     updatedData["username"] = username
                 }
-
-                // Güncellenmiş verileri Firestore'a kaydet
                 if (updatedData.isNotEmpty()) {
                     db.collection("Users").document(userId).update(updatedData)
                         .addOnSuccessListener {
@@ -203,7 +191,6 @@ class SettingsFragment : Fragment() {
             }
         }
     }
-
     private fun updateUI() {
         val userId = auth.currentUser?.uid ?: return
 
@@ -211,19 +198,15 @@ class SettingsFragment : Fragment() {
             if (document != null) {
                 val profileImageUrl = document.getString("downloadUrl")
                 val username = document.getString("username")
-
-                // Profil resmi güncelle
                 if (profileImageUrl != null) {
                     Picasso.get()
                         .load(profileImageUrl)
-                        .placeholder(R.drawable.icons8_user_48) // Varsayılan resim
-                        .error(R.drawable.baseline_error_outline_24) // Hata durumunda varsayılan resim
+                        .placeholder(R.drawable.icons8_user_48)
+                        .error(R.drawable.baseline_error_outline_24)
                         .into(binding.profilePicture)
                 } else {
                     binding.profilePicture.setImageResource(R.drawable.icons8_user_48)
                 }
-
-                // Kullanıcı adı güncelle
                 if (username != null) {
                     binding.usernameTxt.setText(username)
                 }
@@ -255,7 +238,6 @@ class SettingsFragment : Fragment() {
                 }
             }
         }
-
         permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
             if (result) {
                 //permission allowed

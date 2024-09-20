@@ -21,7 +21,6 @@ import com.omer.eventsy.adapter.PostAdapter
 import com.omer.eventsy.databinding.FragmentProfileBinding
 import com.omer.eventsy.model.Post
 import com.squareup.picasso.Picasso
-
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
@@ -76,8 +75,8 @@ class ProfileFragment : Fragment() {
                 if (profileImageUrl != null) {
                     Picasso.get()
                         .load(profileImageUrl)
-                        .placeholder(R.drawable.icons8_user_48) // Varsayılan resim
-                        .error(R.drawable.baseline_error_outline_24) // Hata durumunda varsayılan resim
+                        .placeholder(R.drawable.icons8_user_48)
+                        .error(R.drawable.baseline_error_outline_24)
                         .into(binding.profilePicture)
                 } else {
                     binding.profilePicture.setImageResource(R.drawable.icons8_user_48)
@@ -111,6 +110,7 @@ class ProfileFragment : Fragment() {
                             val email = document.get("email") as String
                             val title = document.get("title") as String
                             val downloadUrl = document.get("downloadUrl") as String
+                            val date = document.getTimestamp("date")
 
                             val documentId = document.id
 
@@ -119,7 +119,7 @@ class ProfileFragment : Fragment() {
                                     val profileImageUrl = userDocs.documents[0].getString("downloadUrl")
                                     val username = userDocs.documents[0].getString("username")
 
-                                    val post = Post(email, details, title, downloadUrl, profileImageUrl,username,documentId)
+                                    val post = Post(email, details, title, downloadUrl, profileImageUrl,username,documentId,date)
                                     postList.add(post)
                                     adapter?.notifyDataSetChanged()
                                 }

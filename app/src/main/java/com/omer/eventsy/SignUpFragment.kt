@@ -86,27 +86,22 @@ class SignUpFragment : Fragment() {
             if(password == rePassword) {
                 auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
                     if(task.isSuccessful) {
-                        // Kullanıcı kaydı başarılı oldu
+
                         val currentUser = auth.currentUser
                         currentUser?.let {
                             val userId = it.uid
-
-                            // Firestore'a email ve username ekleniyor
                             val userMap = hashMapOf(
                                 "email" to email,
                                 "username" to username
                             )
-
                             FirebaseFirestore.getInstance().collection("Users")
                                 .document(userId)
                                 .set(userMap)
                                 .addOnSuccessListener {
-                                    // Kullanıcı bilgileri Firestore'a başarıyla eklendi
                                     val action = SignUpFragmentDirections.actionSignUpFragmentToFeedFragment()
                                     Navigation.findNavController(view).navigate(action)
                                 }
                                 .addOnFailureListener { exception ->
-                                    // Firestore'a eklenirken hata oluştu
                                     Toast.makeText(requireContext(), "Database error: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
                                 }
                         }
@@ -124,8 +119,6 @@ class SignUpFragment : Fragment() {
             Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_LONG).show()
         }
     }
-
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

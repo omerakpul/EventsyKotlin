@@ -4,10 +4,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.omer.eventsy.databinding.RecyclerRowBinding
 import com.omer.eventsy.model.Post
 import com.squareup.picasso.Picasso
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class PostAdapter(private val postList : ArrayList<Post>,
                   private val isFragmentProfile: Boolean) : RecyclerView.Adapter<PostAdapter.PostHolder>() {
@@ -27,8 +30,10 @@ class PostAdapter(private val postList : ArrayList<Post>,
     override fun onBindViewHolder(holder: PostHolder, position: Int) {
         val post = postList[position]
         holder.binding.recyclerUsername.text = post.username
+        holder.binding.recyclerTitle.text = post.title
         holder.binding.recyclerDetails.text = post.details
-        holder.binding.recyclerDate.text = post.title
+
+
         Picasso.get().load(post.downloadUrl).into(holder.binding.recyclerImageView)
         Picasso.get().load(post.profileImageUrl).into(holder.binding.recyclerProfilePicture)
 
@@ -36,14 +41,10 @@ class PostAdapter(private val postList : ArrayList<Post>,
             db.collection("Posts").document(documentId)
                 .delete()
                 .addOnSuccessListener {
-                    // Başarıyla silindi, listeden post'u çıkar
                     postList.removeAt(position)
                     notifyItemRemoved(position)
                 }
-                .addOnFailureListener { e ->
-                    // Hata durumunda bir şeyler yapılabilir (Log veya Toast)
-                    println("Error deleting post: ${e.localizedMessage}")
-                }
+
         }
         if(isFragmentProfile){
             holder.binding.recyclerDelete.visibility = View.VISIBLE
@@ -54,5 +55,10 @@ class PostAdapter(private val postList : ArrayList<Post>,
         } else {
             holder.binding.recyclerDelete.visibility = View.GONE
         }
+        fun formatDate(timestamp: Timestamp): String {
+            val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+            return dateFormat.format(timestamp.toDate())
+        }
+        holder.binding.recyclerDate.text= formatDate(post.date!!)
     }
 }
