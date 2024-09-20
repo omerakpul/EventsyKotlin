@@ -110,8 +110,8 @@ class ProfileFragment : Fragment() {
                             val downloadUrl = document.get("downloadUrl") as String
 
 
-                            val post = Post(email, details, title, downloadUrl)
-                            postList.add(post)
+                            //val post = Post(email, details, title, downloadUrl)
+                            //postList.add(post)
                         }
                         adapter?.notifyDataSetChanged()
                     }

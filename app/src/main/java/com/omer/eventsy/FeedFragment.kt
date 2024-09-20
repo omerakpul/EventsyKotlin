@@ -65,13 +65,12 @@ class FeedFragment : Fragment() {
         binding.feedRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.feedRecyclerView.adapter = adapter
     }
-
     private fun FirestoreDatas() {
 
         db.collection("Posts").orderBy("date", Query.Direction.DESCENDING).addSnapshotListener { value, error ->
             if(error!=null) {
                 Log.e("FeedFragment", "Firestore query failed: ${error.localizedMessage}")
-            // Toast.makeText(requireContext(),"ads",Toast.LENGTH_LONG).show()
+                // Toast.makeText(requireContext(),"ads",Toast.LENGTH_LONG).show()
             } else {
                 if (value != null) {
                     if (!value.isEmpty) {
@@ -83,15 +82,22 @@ class FeedFragment : Fragment() {
                             val title = document.get("title") as String
                             val downloadUrl = document.get("downloadUrl") as String
 
-                            val post = Post(email, details, title, downloadUrl)
-                            postList.add(post)
+                            db.collection("Users").whereEqualTo("email", email).get()
+                                .addOnSuccessListener { userDocs ->
+                                    val profileImageUrl = userDocs.documents[0].getString("downloadUrl")
+
+                                    val post = Post(email, details, title, downloadUrl, profileImageUrl)
+                                    postList.add(post)
+                                    adapter?.notifyDataSetChanged()
+                                }
                         }
-                        adapter?.notifyDataSetChanged()
+
                     }
                 }
             }
         }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

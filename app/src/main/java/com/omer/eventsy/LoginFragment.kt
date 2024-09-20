@@ -38,11 +38,11 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed(){
+            override fun handleOnBackPressed()
+            {
                 requireActivity().finishAffinity()
             }
         })
-
 
         binding.signupBtn.setOnClickListener { signup(it) }
         binding.loginBtn.setOnClickListener { login(it) }
@@ -53,8 +53,6 @@ class LoginFragment : Fragment() {
             val action = LoginFragmentDirections.actionLoginFragmentToFeedFragment()
             Navigation.findNavController(view).navigate(action)
         }
-
-
     }
     fun login(view: View){
 

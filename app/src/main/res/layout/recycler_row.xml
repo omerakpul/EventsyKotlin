@@ -23,16 +23,42 @@
             android:src="@drawable/sample"
             android:contentDescription="Image Preview" />
 
-        <!-- Kullanıcı Adı -->
-        <TextView
-            android:id="@+id/recyclerUsername"
-            android:layout_width="wrap_content"
+        <!-- Kullanıcı Bilgileri -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Username"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="4dp" />
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <!-- Profil Fotoğrafı -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/recyclerProfilePicture"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/icons8_user_48"
+                app:shapeAppearanceOverlay="@style/CircleShapeAppearance"
+                app:strokeColor="@color/black"
+                android:padding="2dp"
+                app:strokeWidth="0dp"
+                android:scaleType="centerCrop"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginBottom="8dp"
+                android:contentDescription="Profil picture"/>
+
+            <!-- Kullanıcı Adı -->
+            <TextView
+                android:id="@+id/recyclerUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Username"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
 
         <!-- Yorum ve Detaylar -->
         <TextView

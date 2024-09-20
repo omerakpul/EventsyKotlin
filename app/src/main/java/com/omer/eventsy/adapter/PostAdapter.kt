@@ -20,9 +20,11 @@ class PostAdapter(private val postList : ArrayList<Post>) : RecyclerView.Adapter
          return postList.size
     }
     override fun onBindViewHolder(holder: PostHolder, position: Int) {
-        holder.binding.recyclerUsername.text = postList[position].email
-        holder.binding.recyclerDetails.text = postList[position].details
-        holder.binding.recyclerDate.text = postList[position].title
-        Picasso.get().load(postList[position].downloadUrl).into(holder.binding.recyclerImageView)
+        val post = postList[position]
+        holder.binding.recyclerUsername.text = post.email
+        holder.binding.recyclerDetails.text = post.details
+        holder.binding.recyclerDate.text = post.title
+        Picasso.get().load(post.downloadUrl).into(holder.binding.recyclerImageView)
+        Picasso.get().load(post.profileImageUrl).into(holder.binding.recyclerProfilePicture)
     }
 }
