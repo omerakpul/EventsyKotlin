@@ -3,13 +3,11 @@ package com.omer.eventsy
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.text.method.LinkMovementMethod
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.widget.addTextChangedListener
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
@@ -109,7 +107,7 @@ class SignUpFragment : Fragment() {
                                 }
                                 .addOnFailureListener { exception ->
                                     // Firestore'a eklenirken hata oluştu
-                                    Toast.makeText(requireContext(), "Veritabanı hatası: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(requireContext(), "Database error: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
                                 }
                         }
                     } else {

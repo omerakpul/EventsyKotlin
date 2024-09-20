@@ -1,6 +1,7 @@
 package com.omer.eventsy
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -97,7 +98,7 @@ class ProfileFragment : Fragment() {
 
         db.collection("Posts").orderBy("date", Query.Direction.DESCENDING).whereEqualTo("email" , currentUserEmail).addSnapshotListener { value, error ->
             if(error!=null) {
-                Toast.makeText(requireContext(),error.localizedMessage, Toast.LENGTH_LONG).show()
+                Log.e("ProfileFragment", "Firestore query failed: ${error.localizedMessage}")
             } else {
                 if (value != null) {
                     if (!value.isEmpty) {

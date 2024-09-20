@@ -69,18 +69,14 @@ class LoginFragment : Fragment() {
             }
         }
     }
-
     fun hideKeyboard() {
         val imm = requireActivity().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view?.windowToken, 0)
     }
-
     fun signup(view: View){
         val action = LoginFragmentDirections.actionLoginFragmentToSignUpFragment()
         Navigation.findNavController(view).navigate(action)
     }
-
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
