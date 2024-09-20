@@ -58,26 +58,11 @@ class ProfileFragment : Fragment() {
         loadProfileData()
 
 
-        adapter = PostAdapter(postList,true,this)
+        adapter = PostAdapter(postList,true)
         binding.userPosts.layoutManager = LinearLayoutManager(requireContext())
         binding.userPosts.adapter = adapter
 
     }
-
-    fun deletePost(postId: String) {
-        val userId = auth.currentUser?.uid ?: return
-
-        // Firestore'dan postu sil
-        db.collection("Posts").document(postId)
-            .delete()
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Post deleted successfully", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Failed to delete post: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
-            }
-    }
-
 
     private fun loadProfileData() {
         val userId = auth.currentUser?.uid ?: return
@@ -127,12 +112,14 @@ class ProfileFragment : Fragment() {
                             val title = document.get("title") as String
                             val downloadUrl = document.get("downloadUrl") as String
 
+                            val documentId = document.id
+
                             db.collection("Users").whereEqualTo("email", email).get()
                                 .addOnSuccessListener { userDocs ->
                                     val profileImageUrl = userDocs.documents[0].getString("downloadUrl")
                                     val username = userDocs.documents[0].getString("username")
 
-                                    val post = Post(email, details, title, downloadUrl, profileImageUrl,username)
+                                    val post = Post(email, details, title, downloadUrl, profileImageUrl,username,documentId)
                                     postList.add(post)
                                     adapter?.notifyDataSetChanged()
                                 }

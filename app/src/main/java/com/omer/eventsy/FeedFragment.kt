@@ -61,7 +61,7 @@ class FeedFragment : Fragment() {
 
         FirestoreDatas()
 
-        adapter = PostAdapter(postList,false,null)
+        adapter = PostAdapter(postList,false)
         binding.feedRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.feedRecyclerView.adapter = adapter
     }
@@ -81,26 +81,23 @@ class FeedFragment : Fragment() {
                             val email = document.get("email") as String
                             val title = document.get("title") as String
                             val downloadUrl = document.get("downloadUrl") as String
-
+                            val documentId = document.id
 
                             db.collection("Users").whereEqualTo("email", email).get()
                                 .addOnSuccessListener { userDocs ->
                                     val profileImageUrl = userDocs.documents[0].getString("downloadUrl")
                                     val username = userDocs.documents[0].getString("username")
 
-                                    val post = Post(email, details, title, downloadUrl, profileImageUrl, username)
+                                    val post = Post(email, details, title, downloadUrl, profileImageUrl, username,documentId)
                                     postList.add(post)
                                     adapter?.notifyDataSetChanged()
                                 }
                         }
-
                     }
                 }
             }
         }
     }
-
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

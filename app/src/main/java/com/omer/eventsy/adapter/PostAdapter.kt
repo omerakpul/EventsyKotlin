@@ -4,14 +4,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.omer.eventsy.ProfileFragment
 import com.omer.eventsy.databinding.RecyclerRowBinding
 import com.omer.eventsy.model.Post
 import com.squareup.picasso.Picasso
 
 class PostAdapter(private val postList : ArrayList<Post>,
-                  private val isFragmentProfile: Boolean,
-                  private val fragment: ProfileFragment?) : RecyclerView.Adapter<PostAdapter.PostHolder>() {
+                  private val isFragmentProfile: Boolean) : RecyclerView.Adapter<PostAdapter.PostHolder>() {
+
+    private val db = FirebaseFirestore.getInstance()
 
     class PostHolder(val binding : RecyclerRowBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -31,11 +34,24 @@ class PostAdapter(private val postList : ArrayList<Post>,
         Picasso.get().load(post.downloadUrl).into(holder.binding.recyclerImageView)
         Picasso.get().load(post.profileImageUrl).into(holder.binding.recyclerProfilePicture)
 
+        fun deletePost(documentId: String, position: Int) {
+            db.collection("Posts").document(documentId)
+                .delete()
+                .addOnSuccessListener {
+                    // Başarıyla silindi, listeden post'u çıkar
+                    postList.removeAt(position)
+                    notifyItemRemoved(position)
+                }
+                .addOnFailureListener { e ->
+                    // Hata durumunda bir şeyler yapılabilir (Log veya Toast)
+                    println("Error deleting post: ${e.localizedMessage}")
+                }
+        }
         if(isFragmentProfile){
             holder.binding.recyclerDelete.visibility = View.VISIBLE
 
             holder.binding.recyclerDelete.setOnClickListener {
-                //fragment.deletePost()
+                deletePost(post.id, position)
             }
         } else {
             holder.binding.recyclerDelete.visibility = View.GONE

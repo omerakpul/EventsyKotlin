@@ -6,5 +6,6 @@ data class Post(
     val title : String ,
     val downloadUrl : String,
     val profileImageUrl : String?,
-    val username : String?
+    val username : String?,
+    var id : String = ""
 )
