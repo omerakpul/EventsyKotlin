@@ -5,8 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
-import com.omer.eventsy.ProfileFragment
 import com.omer.eventsy.databinding.RecyclerRowBinding
 import com.omer.eventsy.model.Post
 import com.squareup.picasso.Picasso
